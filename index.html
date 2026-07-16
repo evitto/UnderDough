@@ -649,15 +649,7 @@
   function validateContact(){
     let valid = true;
 
-    const name = nameInput.value.trim();
-    if(name.length === 0){
-      nameInput.classList.add("invalid");
-      nameError.textContent = "Please enter your name.";
-      valid = false;
-    } else {
-      nameInput.classList.remove("invalid");
-      nameError.textContent = "";
-    }
+    // Name is optional — no validation needed.
 
     const email = emailInput.value.trim();
     if(email.length > 0 && !EMAIL_RE.test(email)){
@@ -681,9 +673,15 @@
   clearFieldError(nameInput, nameError);
   clearFieldError(emailInput, emailError);
 
+  function updateContactBtnLabel(){
+    contactNextBtn.textContent = nameInput.value.trim().length === 0 ? "Anonymous" : "Continue";
+  }
+  nameInput.addEventListener("input", updateContactBtnLabel);
+  updateContactBtnLabel();
+
   contactNextBtn.addEventListener("click", function(){
     if(!validateContact()) return;
-    state.name = nameInput.value.trim();
+    state.name = nameInput.value.trim() || "Anonymous";
     state.email = emailInput.value.trim();
     goToStep(3);
   });
@@ -853,6 +851,7 @@
     emailInput.classList.remove("invalid");
     nameError.textContent = "";
     emailError.textContent = "";
+    updateContactBtnLabel();
 
     // Reset category/item selections
     Array.from(categoryGrid.children).forEach(c => c.classList.remove("selected"));
