@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Feedback | Bakery</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sour+Gummy:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f7f5ef;
+    --primary:#2f6f5e;
+    --primary-dark:#244f42;
+    --white:#ffffff;
+    --text:#2b2b26;
+    --muted:#8a8578;
+    --border:#e7e2d6;
+    --shadow: 0 10px 30px rgba(47,111,94,0.08), 0 2px 8px rgba(0,0,0,0.04);
+    --radius: 20px;
+    --font-heading: "Sour Gummy", "Inter", Arial, sans-serif;
+  }
+
+  *{ box-sizing:border-box; }
+
+  html,body{
+    margin:0;
+    padding:0;
+    height:100%;
+    background:var(--bg);
+    color:var(--text);
+    font-family:"Inter", Arial, Helvetica, sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  body{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:100vh;
+    padding:24px;
+  }
+
+  .app{
+    width:100%;
+    max-width:640px;
+  }
+
+  /* Progress bar */
+  .progress-wrap{
+    width:100%;
+    height:6px;
+    background:var(--border);
+    border-radius:999px;
+    overflow:hidden;
+    margin-top:24px;
+  }
+  .progress-bar{
+    height:100%;
+    background:var(--primary);
+    width:0%;
+    border-radius:999px;
+    transition:width .45s ease;
+  }
+
+  /* Card */
+  .card{
+    background:var(--white);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:48px 40px;
+    min-height:420px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    position:relative;
+    overflow:hidden;
+  }
+
+  @media (max-width:600px){
+    .card{ padding:32px 22px; min-height:380px; }
+    body{ padding:14px; }
+  }
+
+  /* Step transitions */
+  .step{
+    display:none;
+    animation-duration:.42s;
+    animation-timing-function:cubic-bezier(.22,.61,.36,1);
+    animation-fill-mode:both;
+  }
+  .step.active{ display:block; }
+  .step.enter{ animation-name:fadeSlideIn; }
+  .step.leave{ animation-name:fadeSlideOut; }
+
+  @keyframes fadeSlideIn{
+    from{ opacity:0; transform:translateY(18px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+  @keyframes fadeSlideOut{
+    from{ opacity:1; transform:translateY(0); }
+    to{ opacity:0; transform:translateY(-18px); }
+  }
+
+  .eyebrow{
+    color:var(--primary);
+    font-weight:600;
+    font-size:14px;
+    letter-spacing:.02em;
+    margin-bottom:10px;
+  }
+
+  h1{
+    font-size:32px;
+    line-height:1.25;
+    margin:0 0 8px 0;
+    font-weight:700;
+    letter-spacing:-0.01em;
+    font-family:var(--font-heading);
+  }
+
+  .subtitle{
+    font-size:17px;
+    color:var(--muted);
+    margin:0 0 28px 0;
+  }
+
+  h2.question{
+    font-size:26px;
+    line-height:1.3;
+    margin:0 0 28px 0;
+    font-weight:700;
+    letter-spacing:-0.01em;
+    font-family:var(--font-heading);
+  }
+
+  /* Buttons */
+  .btn{
+    appearance:none;
+    border:none;
+    cursor:pointer;
+    font-family:inherit;
+    font-weight:600;
+    font-size:16px;
+    border-radius:14px;
+    padding:15px 28px;
+    transition:transform .15s ease, background .2s ease, box-shadow .2s ease, opacity .2s ease;
+  }
+  .btn-primary{
+    background:var(--primary);
+    color:var(--white);
+  }
+  .btn-primary:hover:not(:disabled){
+    background:var(--primary-dark);
+    transform:translateY(-2px);
+    box-shadow:0 8px 20px rgba(47,111,94,0.25);
+  }
+  .btn-primary:disabled{
+    background:#b9c9c3;
+    cursor:not-allowed;
+    transform:none;
+    box-shadow:none;
+  }
+  .btn-text{
+    background:transparent;
+    color:var(--muted);
+    padding:10px 6px;
+    font-weight:500;
+  }
+  .btn-text:hover{ color:var(--text); }
+
+  .actions-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-top:32px;
+  }
+  .actions-row.right-only{ justify-content:flex-end; }
+
+  /* Welcome step */
+  .welcome{ text-align:center; }
+  .welcome h1{ font-size:38px; }
+  .welcome .btn-primary{ margin-top:18px; padding:16px 40px; font-size:17px; }
+
+  .logo-placeholder{
+    width:192px;
+    height:192px;
+    margin:0 auto 20px auto;
+    border-radius:20px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+  }
+  .logo-placeholder img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+  }
+
+  /* Category / Item cards */
+  .option-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:16px;
+  }
+  @media (max-width:600px){
+    .option-grid{ grid-template-columns:1fr; }
+  }
+  .option-grid.items{
+    grid-template-columns:repeat(2,1fr);
+  }
+  @media (max-width:600px){
+    .option-grid.items{ grid-template-columns:1fr; }
+  }
+
+  .option-card{
+    background:var(--bg);
+    border:2px solid var(--border);
+    border-radius:16px;
+    padding:24px 16px;
+    text-align:center;
+    cursor:pointer;
+    transition:transform .18s ease, border-color .18s ease, background .18s ease, box-shadow .18s ease;
+    font-weight:600;
+    font-size:15px;
+    user-select:none;
+  }
+  .option-card .icon{
+    font-size:38px;
+    display:block;
+    margin-bottom:10px;
+  }
+  .option-card .icon-img{
+    width:140px;
+    height:140px;
+    object-fit:cover;
+    display:block;
+    margin:0 auto 10px auto;
+    border-radius:14px;
+  }
+  .option-card:hover{
+    border-color:var(--primary);
+    transform:translateY(-3px);
+  }
+  .option-card.selected{
+    border-color:var(--primary);
+    background:#eaf3ef;
+    transform:scale(1.05);
+    box-shadow:0 6px 16px rgba(47,111,94,0.18);
+  }
+
+  /* Sliders */
+  .slider-group{
+    margin-bottom:26px;
+  }
+  .slider-label-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:10px;
+    font-weight:600;
+    font-size:15px;
+  }
+  .slider-value{
+    background:var(--primary);
+    color:var(--white);
+    border-radius:8px;
+    padding:2px 10px;
+    font-size:14px;
+    min-width:28px;
+    text-align:center;
+    transition:transform .15s ease;
+  }
+  .slider-value.bump{ transform:scale(1.2); }
+
+  input[type="range"]{
+    -webkit-appearance:none;
+    appearance:none;
+    width:100%;
+    height:8px;
+    border-radius:999px;
+    background:var(--border);
+    outline:none;
+    cursor:pointer;
+  }
+  input[type="range"]::-webkit-slider-thumb{
+    -webkit-appearance:none;
+    appearance:none;
+    width:24px;
+    height:24px;
+    border-radius:50%;
+    background:var(--primary);
+    border:3px solid var(--white);
+    box-shadow:0 2px 8px rgba(47,111,94,0.35);
+    cursor:pointer;
+    transition:transform .15s ease;
+  }
+  input[type="range"]:active::-webkit-slider-thumb{ transform:scale(1.15); }
+  input[type="range"]::-moz-range-thumb{
+    width:24px;
+    height:24px;
+    border-radius:50%;
+    background:var(--primary);
+    border:3px solid var(--white);
+    box-shadow:0 2px 8px rgba(47,111,94,0.35);
+    cursor:pointer;
+    transition:transform .15s ease;
+  }
+
+  /* Stars */
+  .stars{
+    display:flex;
+    gap:10px;
+    justify-content:center;
+    margin:12px 0 8px 0;
+  }
+  .star{
+    font-size:52px;
+    line-height:1;
+    cursor:pointer;
+    color:var(--border);
+    transition:transform .2s ease, color .2s ease;
+    user-select:none;
+  }
+  .star:hover{ transform:scale(1.15); }
+  .star.filled{
+    color:#e8b13a;
+  }
+  .star.pop{ animation:starPop .3s ease; }
+  @keyframes starPop{
+    0%{ transform:scale(1); }
+    50%{ transform:scale(1.35); }
+    100%{ transform:scale(1); }
+  }
+
+  /* Text inputs (name / email) */
+  .field-group{
+    margin-bottom:20px;
+  }
+  .field-label{
+    display:block;
+    font-weight:600;
+    font-size:14px;
+    margin-bottom:8px;
+    color:var(--text);
+  }
+  .text-input{
+    width:100%;
+    border:2px solid var(--border);
+    border-radius:14px;
+    padding:15px 16px;
+    font-family:inherit;
+    font-size:16px;
+    outline:none;
+    transition:border-color .2s ease;
+    background:var(--bg);
+    color:var(--text);
+  }
+  .text-input:focus{ border-color:var(--primary); }
+  .text-input.invalid{ border-color:#c85a4a; }
+  .field-error{
+    color:#c85a4a;
+    font-size:13px;
+    margin-top:6px;
+    min-height:16px;
+  }
+
+  /* Textarea */
+  textarea{
+    width:100%;
+    min-height:140px;
+    border:2px solid var(--border);
+    border-radius:14px;
+    padding:16px;
+    font-family:inherit;
+    font-size:15px;
+    resize:vertical;
+    outline:none;
+    transition:border-color .2s ease;
+    background:var(--bg);
+    color:var(--text);
+  }
+  textarea:focus{ border-color:var(--primary); }
+
+  /* Thank you */
+  .thankyou{ text-align:center; }
+  .thankyou .btn-primary{
+    margin-top:18px;
+    padding:16px 32px;
+  }
+
+  .hint{
+    text-align:center;
+    color:var(--muted);
+    font-size:13px;
+    margin-top:14px;
+  }
+
+  .back-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="card" id="card">
+
+    <!-- Step 1: Welcome -->
+    <section class="step active welcome" data-step="1">
+      <div class="logo-placeholder" id="logoPlaceholder">
+        <!-- UnderDough.gif must be uploaded in the same folder as this index.html -->
+        <img src="UnderDough.gif" alt="Bakery logo" id="logoImg" onerror="this.style.display='none'">
+      </div>
+      <p class="subtitle">How did I do?</p>
+      <button class="btn btn-primary" id="startBtn">Start</button>
+    </section>
+
+    <!-- Step 2: Name & Email -->
+    <section class="step" data-step="2">
+      <h2 class="question">Who are we hearing from?</h2>
+
+      <div class="field-group">
+        <label class="field-label" for="nameInput">Name</label>
+        <input type="text" class="text-input" id="nameInput" placeholder="Your name" autocomplete="name">
+        <div class="field-error" id="nameError"></div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="emailInput">Email</label>
+        <input type="email" class="text-input" id="emailInput" placeholder="you@example.com" autocomplete="email">
+        <div class="field-error" id="emailError"></div>
+      </div>
+
+      <div class="actions-row">
+        <button class="btn btn-text back-btn" data-back>← Back</button>
+        <button class="btn btn-primary" id="contactNextBtn">Continue</button>
+      </div>
+    </section>
+
+    <!-- Step 3: Category -->
+    <section class="step" data-step="3">
+      <h2 class="question">What did you order?</h2>
+      <div class="option-grid" id="categoryGrid">
+        <div class="option-card" data-category="Cookies">
+          <img class="icon-img" src="cookies.gif" alt="Cookies">Cookies
+        </div>
+        <div class="option-card" data-category="Cakes">
+          <img class="icon-img" src="cakes.gif" alt="Cakes">Cakes
+        </div>
+        <div class="option-card" data-category="Bread">
+          <img class="icon-img" src="bread.gif" alt="Bread">Bread
+        </div>
+      </div>
+      <div class="actions-row">
+        <button class="btn btn-text back-btn" data-back>← Back</button>
+        <span></span>
+      </div>
+    </section>
+
+    <!-- Step 4: Item -->
+    <section class="step" data-step="4">
+      <h2 class="question" id="itemQuestion">Which one?</h2>
+      <div class="option-grid items" id="itemGrid"></div>
+      <div class="actions-row">
+        <button class="btn btn-text back-btn" data-back>← Back</button>
+        <button class="btn btn-primary" data-next disabled id="itemNextBtn">Continue</button>
+      </div>
+    </section>
+
+    <!-- Step 5: Ratings -->
+    <section class="step" data-step="5">
+      <h2 class="question">Rate your experience</h2>
+
+      <div class="slider-group">
+        <div class="slider-label-row">
+          <span>Taste</span>
+          <span class="slider-value" id="tasteValue">5</span>
+        </div>
+        <input type="range" min="1" max="10" step="1" value="5" id="tasteSlider">
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-label-row">
+          <span>Smell</span>
+          <span class="slider-value" id="smellValue">5</span>
+        </div>
+        <input type="range" min="1" max="10" step="1" value="5" id="smellSlider">
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-label-row">
+          <span>Appearance</span>
+          <span class="slider-value" id="appearanceValue">5</span>
+        </div>
+        <input type="range" min="1" max="10" step="1" value="5" id="appearanceSlider">
+      </div>
+
+      <div class="actions-row">
+        <button class="btn btn-text back-btn" data-back>← Back</button>
+        <button class="btn btn-primary" data-next>Continue</button>
+      </div>
+    </section>
+
+    <!-- Step 6: Overall rating -->
+    <section class="step" data-step="6">
+      <h2 class="question" style="text-align:center;">Overall, how would you rate it?</h2>
+      <div class="stars" id="starRow">
+        <span class="star" data-value="1">★</span>
+        <span class="star" data-value="2">★</span>
+        <span class="star" data-value="3">★</span>
+        <span class="star" data-value="4">★</span>
+        <span class="star" data-value="5">★</span>
+      </div>
+      <div class="actions-row">
+        <button class="btn btn-text back-btn" data-back>← Back</button>
+        <button class="btn btn-primary" data-next disabled id="ratingNextBtn">Continue</button>
+      </div>
+    </section>
+
+    <!-- Step 7: Feedback -->
+    <section class="step" data-step="7">
+      <h2 class="question">Anything else you'd like to share?</h2>
+      <textarea id="feedbackText" placeholder="Tell me what you liked or what I can improve..."></textarea>
+      <div class="actions-row">
+        <button class="btn btn-text back-btn" data-back>← Back</button>
+        <button class="btn btn-primary" id="submitBtn">Send Feedback</button>
+      </div>
+    </section>
+
+    <!-- Step 8: Thank you -->
+    <section class="step thankyou" data-step="8">
+      <div class="logo-placeholder thankyou-img">
+        <!-- catchef.jpg must be uploaded in the same folder as this index.html -->
+        <img src="catchef.jpg" alt="Thank you">
+      </div>
+      <h1>Thank you!</h1>
+      <p class="subtitle">Your feedback has been received.</p>
+      <button class="btn btn-primary" id="restartBtn">Write another feedback</button>
+    </section>
+
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+
+  <div class="hint" id="hintText"></div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyxWw_7ygGj-wvx8ZrFYKLRqN0yr5P7FbwHwXOiiEW_piedtR_QPade8dXBCbO6Lsmy/exec";
+
+  const TOTAL_STEPS = 8;
+
+  const ITEMS = {
+    Cookies: ["Chocolate Chip","Red Velvet","Oatmeal","Ube Crinkles","Oreo"],
+    Cakes: ["Chocolate Cake","Red Velvet Cake","Cheesecake","Ube Cake","Carrot Cake"],
+    Bread: ["Pandesal","Brioche","Garlic Bread","Ensaymada","Milk Bread"]
+  };
+
+  const state = {
+    step: 1,
+    name: "",
+    email: "",
+    category: "",
+    item: [],
+    taste: 5,
+    smell: 5,
+    appearance: 5,
+    overallRating: 0,
+    feedback: "",
+    submitted: false
+  };
+
+  const card = document.getElementById("card");
+  const progressBar = document.getElementById("progressBar");
+  const steps = Array.from(document.querySelectorAll(".step"));
+
+  function stepEl(n){
+    return steps.find(s => Number(s.dataset.step) === n);
+  }
+
+  function updateProgress(){
+    const pct = ((state.step - 1) / (TOTAL_STEPS - 1)) * 100;
+    progressBar.style.width = pct + "%";
+  }
+
+  function goToStep(n, direction){
+    const current = stepEl(state.step);
+    const next = stepEl(n);
+    if(!next) return;
+
+    current.classList.remove("active","enter");
+    current.classList.add("leave");
+
+    window.setTimeout(function(){
+      current.classList.remove("leave");
+      current.classList.remove("active");
+
+      next.classList.add("active","enter");
+      window.setTimeout(function(){ next.classList.remove("enter"); }, 450);
+    }, 200);
+
+    state.step = n;
+    updateProgress();
+  }
+
+  // ---------- Step 1: Welcome ----------
+  document.getElementById("startBtn").addEventListener("click", function(){
+    goToStep(2);
+  });
+
+  // ---------- Step 2: Name & Email ----------
+  const nameInput = document.getElementById("nameInput");
+  const emailInput = document.getElementById("emailInput");
+  const nameError = document.getElementById("nameError");
+  const emailError = document.getElementById("emailError");
+  const contactNextBtn = document.getElementById("contactNextBtn");
+
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  function validateContact(){
+    let valid = true;
+
+    const name = nameInput.value.trim();
+    if(name.length === 0){
+      nameInput.classList.add("invalid");
+      nameError.textContent = "Please enter your name.";
+      valid = false;
+    } else {
+      nameInput.classList.remove("invalid");
+      nameError.textContent = "";
+    }
+
+    const email = emailInput.value.trim();
+    if(email.length > 0 && !EMAIL_RE.test(email)){
+      emailInput.classList.add("invalid");
+      emailError.textContent = "Please enter a valid email address.";
+      valid = false;
+    } else {
+      emailInput.classList.remove("invalid");
+      emailError.textContent = "";
+    }
+
+    return valid;
+  }
+
+  function clearFieldError(input, errorEl){
+    input.addEventListener("input", function(){
+      input.classList.remove("invalid");
+      errorEl.textContent = "";
+    });
+  }
+  clearFieldError(nameInput, nameError);
+  clearFieldError(emailInput, emailError);
+
+  contactNextBtn.addEventListener("click", function(){
+    if(!validateContact()) return;
+    state.name = nameInput.value.trim();
+    state.email = emailInput.value.trim();
+    goToStep(3);
+  });
+
+  // ---------- Step 3: Category ----------
+  const categoryGrid = document.getElementById("categoryGrid");
+  categoryGrid.addEventListener("click", function(e){
+    const card = e.target.closest(".option-card");
+    if(!card) return;
+    Array.from(categoryGrid.children).forEach(c => c.classList.remove("selected"));
+    card.classList.add("selected");
+    state.category = card.dataset.category;
+    buildItemGrid();
+    window.setTimeout(function(){ goToStep(4); }, 380);
+  });
+
+  // ---------- Step 4: Item (multi-select) ----------
+  const itemGrid = document.getElementById("itemGrid");
+  const itemQuestion = document.getElementById("itemQuestion");
+  const itemNextBtn = document.getElementById("itemNextBtn");
+
+  function buildItemGrid(){
+    itemQuestion.textContent = "Which " + state.category.toLowerCase() + "?";
+    itemGrid.innerHTML = "";
+    state.item = [];
+    const list = ITEMS[state.category] || [];
+    list.forEach(function(name){
+      const div = document.createElement("div");
+      div.className = "option-card";
+      div.dataset.item = name;
+      div.textContent = name;
+      itemGrid.appendChild(div);
+    });
+    itemNextBtn.disabled = true;
+  }
+
+  itemGrid.addEventListener("click", function(e){
+    const card = e.target.closest(".option-card");
+    if(!card) return;
+
+    const name = card.dataset.item;
+    card.classList.toggle("selected");
+
+    if(card.classList.contains("selected")){
+      if(!state.item.includes(name)) state.item.push(name);
+    } else {
+      state.item = state.item.filter(n => n !== name);
+    }
+
+    itemNextBtn.disabled = state.item.length === 0;
+  });
+
+  // ---------- Step 5: Sliders ----------
+  function wireSlider(sliderId, valueId, key){
+    const slider = document.getElementById(sliderId);
+    const value = document.getElementById(valueId);
+    slider.addEventListener("input", function(){
+      state[key] = Number(slider.value);
+      value.textContent = slider.value;
+      value.classList.remove("bump");
+      void value.offsetWidth;
+      value.classList.add("bump");
+    });
+  }
+  wireSlider("tasteSlider","tasteValue","taste");
+  wireSlider("smellSlider","smellValue","smell");
+  wireSlider("appearanceSlider","appearanceValue","appearance");
+
+  // ---------- Step 6: Overall rating ----------
+  const starRow = document.getElementById("starRow");
+  const stars = Array.from(starRow.querySelectorAll(".star"));
+  const ratingNextBtn = document.getElementById("ratingNextBtn");
+
+  function renderStars(){
+    stars.forEach(function(s){
+      const v = Number(s.dataset.value);
+      s.classList.toggle("filled", v <= state.overallRating);
+    });
+  }
+
+  starRow.addEventListener("click", function(e){
+    const s = e.target.closest(".star");
+    if(!s) return;
+    state.overallRating = Number(s.dataset.value);
+    renderStars();
+    s.classList.remove("pop");
+    void s.offsetWidth;
+    s.classList.add("pop");
+    ratingNextBtn.disabled = false;
+  });
+
+  // ---------- Generic next/back ----------
+  document.querySelectorAll("[data-next]").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      const current = state.step;
+      goToStep(current + 1);
+    });
+  });
+
+  document.querySelectorAll("[data-back]").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      const current = state.step;
+      goToStep(current - 1);
+    });
+  });
+
+  // ---------- Step 7: Feedback + submit ----------
+  const feedbackText = document.getElementById("feedbackText");
+  const submitBtn = document.getElementById("submitBtn");
+
+  feedbackText.addEventListener("input", function(){
+    state.feedback = feedbackText.value;
+  });
+
+  submitBtn.addEventListener("click", function(){
+    if(state.submitted) return;
+    state.submitted = true;
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Sending...";
+
+    const payload = {
+      name: state.name,
+      email: state.email,
+      category: state.category,
+      item: state.item.join(", "),
+      taste: String(state.taste),
+      smell: String(state.smell),
+      appearance: String(state.appearance),
+      overallRating: String(state.overallRating),
+      feedback: state.feedback
+    };
+
+    fetch(SCRIPT_URL, {
+      method: "POST",
+      mode: "no-cors",
+      body: JSON.stringify(payload)
+    })
+    .then(function(){
+      goToStep(8);
+    })
+    .catch(function(){
+      goToStep(8);
+    });
+  });
+
+  // ---------- Step 8: Restart ----------
+  const restartBtn = document.getElementById("restartBtn");
+
+  restartBtn.addEventListener("click", function(){
+    // Reset state
+    state.name = "";
+    state.email = "";
+    state.category = "";
+    state.item = [];
+    state.taste = 5;
+    state.smell = 5;
+    state.appearance = 5;
+    state.overallRating = 0;
+    state.feedback = "";
+    state.submitted = false;
+
+    // Reset name/email fields
+    nameInput.value = "";
+    emailInput.value = "";
+    nameInput.classList.remove("invalid");
+    emailInput.classList.remove("invalid");
+    nameError.textContent = "";
+    emailError.textContent = "";
+
+    // Reset category/item selections
+    Array.from(categoryGrid.children).forEach(c => c.classList.remove("selected"));
+    itemGrid.innerHTML = "";
+    itemNextBtn.disabled = true;
+
+    // Reset sliders
+    document.getElementById("tasteSlider").value = 5;
+    document.getElementById("smellSlider").value = 5;
+    document.getElementById("appearanceSlider").value = 5;
+    document.getElementById("tasteValue").textContent = "5";
+    document.getElementById("smellValue").textContent = "5";
+    document.getElementById("appearanceValue").textContent = "5";
+
+    // Reset stars
+    renderStars();
+    ratingNextBtn.disabled = true;
+
+    // Reset feedback textarea + submit button
+    feedbackText.value = "";
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Send Feedback";
+
+    goToStep(1);
+  });
+
+  // ---------- Enter key handling ----------
+  document.addEventListener("keydown", function(e){
+    if(e.key !== "Enter") return;
+
+    const s = state.step;
+
+    // Avoid interfering with textarea newlines (allow shift+enter or plain enter to submit? Typeform advances on enter)
+    if(s === 1){
+      e.preventDefault();
+      goToStep(2);
+    } else if(s === 2){
+      if(document.activeElement === nameInput || document.activeElement === emailInput){
+        e.preventDefault();
+        contactNextBtn.click();
+      }
+    } else if(s === 4){
+      if(state.item.length > 0){
+        e.preventDefault();
+        goToStep(5);
+      }
+    } else if(s === 5){
+      e.preventDefault();
+      goToStep(6);
+    } else if(s === 6){
+      if(state.overallRating > 0){
+        e.preventDefault();
+        goToStep(7);
+      }
+    } else if(s === 7){
+      if(document.activeElement !== feedbackText){
+        e.preventDefault();
+        submitBtn.click();
+      }
+    }
+  });
+
+  // ---------- Init ----------
+  updateProgress();
+  renderStars();
+
+})();
+</script>
+
+</body>
+</html>
