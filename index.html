@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Feedback | UnderDough</title>
+<title>Feedback | Bakery</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sour+Gummy:wght@400;600;700&display=swap" rel="stylesheet">
@@ -212,16 +212,11 @@
   .option-grid{
     display:grid;
     grid-template-columns:repeat(3,minmax(0,1fr));
-    gap:12px;
-  }
-  @media (max-width:600px){
-    .option-grid{ grid-template-columns:1fr; }
+    gap:8px;
   }
   .option-grid.items{
     grid-template-columns:repeat(2,minmax(0,1fr));
-  }
-  @media (max-width:600px){
-    .option-grid.items{ grid-template-columns:1fr; }
+    gap:8px;
   }
 
   .option-card{
@@ -236,6 +231,13 @@
     font-weight:600;
     font-size:14px;
     user-select:none;
+  }
+  @media (max-width:400px){
+    .option-card{
+      padding:10px 6px;
+      font-size:12px;
+      border-width:1.5px;
+    }
   }
   .option-card .icon{
     font-size:32px;
