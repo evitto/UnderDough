@@ -10,13 +10,13 @@
 <style>
   :root{
     --bg:#f7f5ef;
-    --primary:#2f6f5e;
-    --primary-dark:#244f42;
+    --primary:#473c2c;
+    --primary-dark:#332a1f;
     --white:#ffffff;
     --text:#2b2b26;
     --muted:#8a8578;
     --border:#e7e2d6;
-    --shadow: 0 10px 30px rgba(47,111,94,0.08), 0 2px 8px rgba(0,0,0,0.04);
+    --shadow: 0 10px 30px rgba(71,60,44,0.08), 0 2px 8px rgba(0,0,0,0.04);
     --radius: 20px;
     --font-heading: "Sour Gummy", "Inter", Arial, sans-serif;
   }
@@ -162,7 +162,7 @@
   .btn-primary:hover:not(:disabled){
     background:var(--primary-dark);
     transform:translateY(-2px);
-    box-shadow:0 8px 20px rgba(47,111,94,0.25);
+    box-shadow:0 8px 20px rgba(71,60,44,0.25);
   }
   .btn-primary:disabled{
     background:#b9c9c3;
@@ -192,8 +192,8 @@
   .welcome .btn-primary{ margin-top:12px; padding:14px 36px; font-size:16px; }
 
   .logo-placeholder{
-    width:120px;
-    height:120px;
+    width:270px;
+    height:270px;
     margin:0 auto 14px auto;
     border-radius:20px;
     display:flex;
@@ -261,9 +261,9 @@
   }
   .option-card.selected{
     border-color:var(--primary);
-    background:#eaf3ef;
+    background:#efe7db;
     transform:scale(1.05);
-    box-shadow:0 6px 16px rgba(47,111,94,0.18);
+    box-shadow:0 6px 16px rgba(71,60,44,0.18);
   }
 
   /* Sliders */
@@ -308,7 +308,7 @@
     border-radius:50%;
     background:var(--primary);
     border:3px solid var(--white);
-    box-shadow:0 2px 8px rgba(47,111,94,0.35);
+    box-shadow:0 2px 8px rgba(71,60,44,0.35);
     cursor:pointer;
     transition:transform .15s ease;
   }
@@ -319,7 +319,7 @@
     border-radius:50%;
     background:var(--primary);
     border:3px solid var(--white);
-    box-shadow:0 2px 8px rgba(47,111,94,0.35);
+    box-shadow:0 2px 8px rgba(71,60,44,0.35);
     cursor:pointer;
     transition:transform .15s ease;
   }
@@ -401,6 +401,10 @@
 
   /* Thank you */
   .thankyou{ text-align:center; }
+  .thankyou-img{
+    width:120px;
+    height:120px;
+  }
   .thankyou .btn-primary{
     margin-top:18px;
     padding:16px 32px;
@@ -431,7 +435,7 @@
         <!-- UnderDough.gif must be uploaded in the same folder as this index.html -->
         <img src="UnderDough.GIF" alt="Bakery logo" id="logoImg" onerror="this.style.display='none'">
       </div>
-      <p class="subtitle">How did I do?</p>
+      <p class="subtitle">I'd love to hear your thoughts.</p>
       <button class="btn btn-primary" id="startBtn">Start</button>
     </section>
 
